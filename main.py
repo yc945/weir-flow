@@ -62,9 +62,26 @@ def _find_cjk_font():
         os.path.join(_here, 'fonts', 'simhei.ttf'),
         _wf + 'simhei.ttf', _wf + 'simkai.ttf',
         _wf + 'STFANGSO.TTF', _wf + 'msyh.ttc',
+        # AOSP / Pixel
         '/system/fonts/NotoSansCJK-Regular.ttc',
+        '/system/fonts/NotoSansCJKsc-Regular.otf',
+        '/system/fonts/DroidSansChinese.ttf',
         '/system/fonts/DroidSansFallback.ttf',
+        # MIUI (小米)
+        '/system/fonts/MiSans-Regular.ttf',
+        '/system/fonts/MiSans-Normal.ttf',
+        # HarmonyOS (华为)
+        '/system/fonts/HarmonyOS_Sans_SC_Regular.ttf',
+        '/system/fonts/HMOS_Sans_SC.ttf',
+        # ColorOS (OPPO/一加)
+        '/system/fonts/OPPOSans-R.ttf',
+        # OriginOS / Funtouch (vivo)
+        '/system/fonts/vivoSans-Regular.ttf',
+        # Samsung
+        '/system/fonts/SamsungSans-Regular.ttf',
+        # Linux (CI / desktop)
         '/usr/share/fonts/truetype/wqy/wqy-microhei.ttc',
+        '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
     ]
     for fp in candidates:
         if os.path.exists(fp):

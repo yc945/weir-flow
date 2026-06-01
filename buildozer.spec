@@ -5,7 +5,7 @@ package.name = weirflow
 package.domain = org.water.weir
 
 source.dir = .
-source.include_exts = py,kv,ttf,otf,png,jpg
+source.include_exts = py,kv,ttf,otf,ttc,png,jpg
 
 version = 1.0
 
@@ -18,8 +18,8 @@ android.api = 33
 android.minapi = 21
 android.ndk = 25b
 android.accept_sdk_license = True
-android.archs = arm64-v8a
-android.permissions =
+android.archs = arm64-v8a,armeabi-v7a
+android.permissions = READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
 android.logcat_filters = *:S python:D
 
 p4a.branch = v2024.01.21
