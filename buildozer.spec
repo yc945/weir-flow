@@ -13,6 +13,11 @@ version = 1.0
 # python3 不固定版本，让 Docker 镜像内置 Python 决定（kivy/buildozer 使用 Python 3.11）
 requirements = python3,kivy==2.3.0,pillow
 
+# Pin p4a to 2023-09 release: uses Python 3.11 for Android, compatible with
+# kivy 2.3.0 Cython C code. p4a master (default) uses Python 3.13/3.14 whose
+# removed internal APIs (_PyUnicode_FastCopyCharacters etc.) break kivy 2.3.0.
+p4a.branch = 2023.09.16
+
 orientation = portrait
 fullscreen = 0
 
