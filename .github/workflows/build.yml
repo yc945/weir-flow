@@ -57,7 +57,10 @@ jobs:
             xargs -I{} sh -c 'yes | {} --licenses' 2>/dev/null || true
 
       - name: Build APK
-        run: buildozer android debug 2>&1 | tee build.log; grep -E "ERROR|Build failed" build.log | tail -20 || true
+        shell: bash
+        run: |
+          set -o pipefail
+          buildozer android debug 2>&1 | tee build.log
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
