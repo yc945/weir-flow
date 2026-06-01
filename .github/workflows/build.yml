@@ -5,6 +5,10 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+# Allow pushing build logs to ci-debug branch for diagnosis
+permissions:
+  contents: write
+
 jobs:
   # ── 主方案: Docker 构建 ─────────────────────────────────────────────────────
   build-docker:
@@ -24,30 +28,18 @@ jobs:
             docker-buildozer-${{ runner.os }}-
 
       - name: Prepare workspace permissions
-        run: |
-          mkdir -p bin
-          chmod -R 777 .
+        run: mkdir -p bin && chmod -R 777 .
 
       - name: Build APK with kivy/buildozer Docker
-        # Mounts .github/docker_build.sh into container; the script auto-detects
-        # Docker's Python version, patches p4a recipe to match, then runs buildozer.
         run: |
           docker run --rm \
             -v "$(pwd)":/home/user/hostcwd \
-            -v "$(pwd)/.github/docker_build.sh":/docker_build.sh \
-            --entrypoint bash \
             ghcr.io/kivy/buildozer:latest \
-            /docker_build.sh 2>&1 | tee build.log
+            android debug 2>&1 | tee build.log
           DOCKER_RC=${PIPESTATUS[0]}
           echo "=== docker exit: $DOCKER_RC ==="
           ls -lh bin/ 2>/dev/null || echo "(bin/ 为空)"
           [ $DOCKER_RC -eq 0 ]
-
-      - name: Show build log tail (always)
-        if: always()
-        run: |
-          echo "=== Last 200 lines of build.log ==="
-          tail -n 200 build.log 2>/dev/null || echo "(no build.log)"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -95,28 +87,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install "buildozer" "cython==0.29.37"
 
-      - name: Override system python3 and patch p4a recipe to match host Python
+      - name: Override system python3 to Python 3.11
         run: |
-          # Make system python3 point to setup-python's Python 3.11.x
           PYTHON311=$(python -c "import sys; print(sys.executable)")
           sudo ln -sf "$PYTHON311" /usr/bin/python3
           sudo ln -sf "$PYTHON311" /usr/local/bin/python3
           echo "python3 → $(python3 --version)"
-
-          # Detect exact Python version and patch p4a python3 recipe to match.
-          # This avoids the "python3 should have same version as hostpython3" error
-          # that fires when recipe version != platform.python_version().
-          PYTHON_VER=$(python -c "import platform; print(platform.python_version())")
-          echo "Patching p4a Python3 recipe to version $PYTHON_VER"
-
-          P4A_RECIPE=$(python -c "
-          import pythonforandroid, os
-          print(os.path.join(os.path.dirname(pythonforandroid.__file__), 'recipes', 'python3', '__init__.py'))
-          ")
-          echo "Recipe path: $P4A_RECIPE"
-          echo "Before patch: $(grep \"version = '\" $P4A_RECIPE | head -3)"
-          sed -i "s/version = '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*'/version = '$PYTHON_VER'/" "$P4A_RECIPE"
-          echo "After patch:  $(grep \"version = '\" $P4A_RECIPE | head -3)"
 
       - name: Cache buildozer global dir
         uses: actions/cache@v4
@@ -127,13 +103,13 @@ jobs:
             native-buildozer-${{ runner.os }}-ndk23b-
 
       - name: Build APK (python -m buildozer)
+        # yes| feeds stdin for any SDK/NDK prompts; PIPESTATUS[1] captures
+        # buildozer's real exit code (avoids tee masking failure).
         run: |
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
-          echo "Host python  : $(python --version)"
-          echo "System python3: $(python3 --version)"
-          # Use yes | for stdin prompts; PIPESTATUS[1] captures buildozer's exit code
-          # (avoids set -o pipefail which misreports when 'yes' gets SIGPIPE on success)
+          echo "python : $(python --version)"
+          echo "python3: $(python3 --version)"
           yes | python -m buildozer android debug 2>&1 | tee build.log
           BUILDOZER_RC=${PIPESTATUS[1]}
           echo "=== buildozer exit: $BUILDOZER_RC ==="
@@ -142,11 +118,28 @@ jobs:
         env:
           JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
-      - name: Show build log tail (always)
-        if: always()
+      - name: Push full build log to ci-debug branch for diagnosis
+        # Commits build.log to ci-debug branch so it can be read without auth
+        # via: https://raw.githubusercontent.com/yc945/weir-flow/ci-debug/_build_logs/native-build.log
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "=== Last 200 lines of build.log ==="
-          tail -n 200 build.log 2>/dev/null || echo "(no build.log)"
+          cd /tmp
+          git init ci-log && cd ci-log
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git remote add origin \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+          git checkout -b ci-debug
+          mkdir -p _build_logs
+          cp "${{ github.workspace }}/build.log" _build_logs/native-build.log 2>/dev/null \
+            || echo "no build.log" > _build_logs/native-build.log
+          git add _build_logs/
+          git commit -m "ci: native build log [skip ci]"
+          git push -f origin ci-debug
+          echo "=== Build log URL ==="
+          echo "https://raw.githubusercontent.com/${{ github.repository }}/ci-debug/_build_logs/native-build.log"
 
       - name: Upload APK (fallback)
         uses: actions/upload-artifact@v4
