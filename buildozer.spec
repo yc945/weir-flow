@@ -10,7 +10,7 @@ source.include_exts = py,kv,ttf,otf,png,jpg
 
 version = 1.0
 
-requirements = python3,kivy==2.3.0,pillow
+requirements = python3==3.11.0,kivy==2.3.0,pillow
 
 orientation = portrait
 fullscreen = 0
@@ -23,7 +23,7 @@ fullscreen = 0
 
 android.api    = 33
 android.minapi = 21
-android.ndk    = 25b
+android.ndk    = 23b
 
 android.accept_sdk_license = True
 android.archs = arm64-v8a
