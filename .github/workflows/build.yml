@@ -29,9 +29,10 @@ jobs:
             build-essential libsqlite3-dev \
             python3-pip
 
-      - name: Install buildozer
+      - name: Install buildozer & cython
         run: |
-          pip install --upgrade buildozer cython
+          python -m pip install --upgrade pip
+          pip install buildozer cython
 
       - name: Cache buildozer global dir
         uses: actions/cache@v4
@@ -43,19 +44,26 @@ jobs:
 
       - name: Build APK
         run: |
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          # 确保 python/python3 均指向 3.11
+          python_path=$(which python)
+          echo "Using Python: $python_path"
+          python --version
           yes | buildozer android debug 2>&1 | tee build.log
-        env:
-          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+          echo "--- bin 目录内容 ---"
+          ls -lh bin/ 2>/dev/null || echo "bin/ 为空"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: weir-flow-debug-apk
           path: bin/*.apk
+          if-no-files-found: error
           retention-days: 30
 
-      - name: Upload build log on failure
-        if: failure()
+      - name: Upload build log (always)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
