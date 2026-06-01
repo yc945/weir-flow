@@ -6,15 +6,60 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  # ── 主方案: Docker 构建（kivy 官方镜像，环境完全隔离）────────────────────────
+  build-docker:
+    name: Build APK (Docker)
     runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 关键: 用 setup-python 安装 3.11，后续 pip/buildozer 全用这个 Python
-      # 这样 p4a 的 hostpython3 = 3.11，与 requirements python3==3.11.0 匹配
+      - name: Cache buildozer Docker build dir
+        uses: actions/cache@v4
+        with:
+          path: .buildozer
+          key: docker-buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            docker-buildozer-${{ runner.os }}-
+
+      - name: Build APK with kivy/buildozer Docker
+        run: |
+          # kivy 官方 buildozer 镜像：Python 3.11 + NDK + 所有依赖均已配置好
+          docker run --rm \
+            -v "$(pwd)":/home/user/hostcwd \
+            ghcr.io/kivy/buildozer:latest \
+            android debug 2>&1 | tee build.log
+          echo "=== bin/ ==="
+          ls -lh bin/ 2>/dev/null || echo "(bin/ 为空)"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: weir-flow-debug-apk
+          path: bin/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload build log (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-docker
+          path: build.log
+
+  # ── 备用方案: 原生构建（修复 python3 symlink + NDK 23b）─────────────────────
+  build-native:
+    name: Build APK (Native fallback)
+    runs-on: ubuntu-22.04
+    # 仅在 Docker 方案失败时才运行，节省 CI 时间
+    needs: build-docker
+    if: failure()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
@@ -30,38 +75,44 @@ jobs:
             cmake libffi-dev libssl-dev \
             build-essential libsqlite3-dev
 
-      # 关键: 用 "python -m pip" 而非 "pip3"，确保装到 3.11 下
-      - name: Install buildozer & cython (Python 3.11)
+      - name: Install buildozer & cython (under Python 3.11)
         run: |
           python -m pip install --upgrade pip
           python -m pip install "buildozer" "cython==0.29.37"
-          python -m buildozer --version
-          python --version
+
+      # 关键修复：让系统 python3 命令指向 3.11，
+      # 使 p4a 的 hostpython3 版本检测返回 3.11.x
+      - name: Override system python3 to Python 3.11
+        run: |
+          PYTHON311=$(python -c "import sys; print(sys.executable)")
+          echo "Overriding python3 -> $PYTHON311"
+          sudo ln -sf "$PYTHON311" /usr/bin/python3
+          sudo ln -sf "$PYTHON311" /usr/local/bin/python3
+          python3 --version
 
       - name: Cache buildozer global dir
         uses: actions/cache@v4
         with:
           path: ~/.buildozer
-          key: buildozer-${{ runner.os }}-ndk23b-${{ hashFiles('buildozer.spec') }}
+          key: native-buildozer-${{ runner.os }}-ndk23b-${{ hashFiles('buildozer.spec') }}
           restore-keys: |
-            buildozer-${{ runner.os }}-ndk23b-
+            native-buildozer-${{ runner.os }}-ndk23b-
 
-      # 关键: 用 "python -m buildozer" 而非 "buildozer"，
-      # 确保 python-for-android 运行在 Python 3.11 下
-      - name: Build APK
+      - name: Build APK (python -m buildozer)
         run: |
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
-          echo "Host Python: $(python --version)"
-          echo "JAVA: $(java -version 2>&1 | head -1)"
+          echo "Host python: $(python --version)"
+          echo "System python3: $(python3 --version)"
           yes | python -m buildozer android debug 2>&1 | tee build.log
-          echo "=== bin/ ==="
-          ls -lh bin/ 2>/dev/null || echo "bin/ 为空"
+          ls -lh bin/ 2>/dev/null || echo "(bin/ 为空)"
+        env:
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
-      - name: Upload APK artifact
+      - name: Upload APK (fallback)
         uses: actions/upload-artifact@v4
         with:
-          name: weir-flow-debug-apk
+          name: weir-flow-debug-apk-fallback
           path: bin/*.apk
           if-no-files-found: error
           retention-days: 30
@@ -70,5 +121,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log
+          name: build-log-native
           path: build.log

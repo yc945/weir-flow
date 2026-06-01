@@ -10,7 +10,8 @@ source.include_exts = py,kv,ttf,otf,png,jpg
 
 version = 1.0
 
-requirements = python3==3.11.0,kivy==2.3.0,pillow
+# python3 不固定版本，让 Docker 镜像内置 Python 决定（kivy/buildozer 使用 Python 3.11）
+requirements = python3,kivy==2.3.0,pillow
 
 orientation = portrait
 fullscreen = 0
