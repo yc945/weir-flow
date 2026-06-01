@@ -14,7 +14,6 @@
 
 from kivy.config import Config
 Config.set('kivy', 'keyboard_mode', 'system')
-Config.set('graphics', 'resizable', '1')
 
 import os, sys, math
 from datetime import datetime
@@ -35,8 +34,6 @@ from kivy.core.text import LabelBase
 from kivy.clock import Clock
 import kivy
 
-Window.clearcolor = (0.96, 0.96, 0.97, 1)
-Window.softinput_mode = 'below_target'
 
 G = 9.81
 SQRT2G = math.sqrt(2 * G)
@@ -741,6 +738,8 @@ class HelpScreen(Screen):
 
 class WeirCalcApp(App):
     def build(self):
+        Window.clearcolor = (0.96, 0.96, 0.97, 1)
+        Window.softinput_mode = 'below_target'
         Builder.load_string(KV)
         root = RootBox()
         sm = root.ids.sm
