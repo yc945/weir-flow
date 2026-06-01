@@ -1,0 +1,152 @@
+Cloning into 'python-for-android'...
+fatal: Remote branch 2023.09.16 not found in upstream origin
+[0m[1;34m# Ensure build layout[0m
+[0m[1;30m# Create directory /home/runner/.buildozer[0m
+[0m[1;30m# Create directory /home/runner/.buildozer/cache[0m
+[0m[1;30m# Create directory /home/runner/work/weir-flow/weir-flow/.buildozer[0m
+[0m[1;30m# Create directory /home/runner/work/weir-flow/weir-flow/bin[0m
+[0m[1;30m# Create directory /home/runner/work/weir-flow/weir-flow/.buildozer/applibs[0m
+[0m[1;30m# Create directory /home/runner/.buildozer/android/platform/android/platform[0m
+[0m[1;30m# Create directory /home/runner/work/weir-flow/weir-flow/.buildozer/android/platform[0m
+[0m[1;30m# Create directory /home/runner/work/weir-flow/weir-flow/.buildozer/android/app[0m
+[0m[1;34m# Check configuration tokens[0m
+[0m[1;34m# Preparing build[0m
+[0m[1;34m# Check requirements for android[0m
+[0m[1;30m# Search for Git (git)[0m
+[0m[1;30m#  -> found at /usr/bin/git[0m
+[0m[1;30m# Search for Cython (cython)[0m
+[0m[1;30m#  -> found at /opt/hostedtoolcache/Python/3.11.15/x64/bin/cython[0m
+[0m[1;30m# Search for Java compiler (javac)[0m
+[0m[1;30m#  -> found at /usr/lib/jvm/java-17-openjdk-amd64/bin/javac[0m
+[0m[1;30m# Search for Java keytool (keytool)[0m
+[0m[1;30m#  -> found at /usr/lib/jvm/java-17-openjdk-amd64/bin/keytool[0m
+[0m[1;34m# Install platform[0m
+[0m[1;30m# Run 'git clone -b 2023.09.16 --single-branch https://github.com/kivy/python-for-android.git python-for-android' ...[0m
+[0m[1;30m# Cwd /home/runner/work/weir-flow/weir-flow/.buildozer/android/platform[0m
+[0m[1;31m# Command failed: ('git', 'clone', '-b', '2023.09.16', '--single-branch', 'https://github.com/kivy/python-for-android.git', 'python-for-android')[0m
+[0m[1;31m# Error code: 128[0m
+[0m[1;31m# ENVIRONMENT:[0m
+[0m[1;31m#     SHELL = '/bin/bash'[0m
+[0m[1;31m#     SELENIUM_JAR_PATH = '/usr/share/java/selenium-server.jar'[0m
+[0m[1;31m#     CONDA = '/usr/share/miniconda'[0m
+[0m[1;31m#     GITHUB_WORKSPACE = '/home/runner/work/weir-flow/weir-flow'[0m
+[0m[1;31m#     JAVA_HOME_11_X64 = '/usr/lib/jvm/temurin-11-jdk-amd64'[0m
+[0m[1;31m#     JAVA_HOME_25_X64 = '/usr/lib/jvm/temurin-25-jdk-amd64'[0m
+[0m[1;31m#     PKG_CONFIG_PATH = '/opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig'[0m
+[0m[1;31m#     GITHUB_PATH = '/home/runner/work/_temp/_runner_file_commands/add_path_6f20229c-7c14-478b-ba27-13fe58d460c4'[0m
+[0m[1;31m#     GITHUB_ACTION = '__run_4'[0m
+[0m[1;31m#     JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'[0m
+[0m[1;31m#     GITHUB_RUN_NUMBER = '9'[0m
+[0m[1;31m#     RUNNER_NAME = 'GitHub Actions 1000000036'[0m
+[0m[1;31m#     GRADLE_HOME = '/usr/share/gradle-9.5.1'[0m
+[0m[1;31m#     GITHUB_REPOSITORY_OWNER_ID = '139887443'[0m
+[0m[1;31m#     ACTIONS_RUNNER_ACTION_ARCHIVE_CACHE = '/opt/actionarchivecache'[0m
+[0m[1;31m#     XDG_CONFIG_HOME = '/home/runner/.config'[0m
+[0m[1;31m#     Python_ROOT_DIR = '/opt/hostedtoolcache/Python/3.11.15/x64'[0m
+[0m[1;31m#     DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'[0m
+[0m[1;31m#     ANT_HOME = '/usr/share/ant'[0m
+[0m[1;31m#     JAVA_HOME_8_X64 = '/usr/lib/jvm/temurin-8-jdk-amd64'[0m
+[0m[1;31m#     GITHUB_TRIGGERING_ACTOR = 'yc945'[0m
+[0m[1;31m#     pythonLocation = '/opt/hostedtoolcache/Python/3.11.15/x64'[0m
+[0m[1;31m#     GITHUB_REF_TYPE = 'branch'[0m
+[0m[1;31m#     HOMEBREW_CLEANUP_PERIODIC_FULL_DAYS = '3650'[0m
+[0m[1;31m#     ACTIONS_RUNNER_RETURN_JOB_RESULT_FOR_HOSTED = '1'[0m
+[0m[1;31m#     ANDROID_NDK = '/usr/local/lib/android/sdk/ndk/27.3.13750724'[0m
+[0m[1;31m#     BOOTSTRAP_HASKELL_NONINTERACTIVE = '1'[0m
+[0m[1;31m#     PWD = '/home/runner/work/weir-flow/weir-flow'[0m
+[0m[1;31m#     PIPX_BIN_DIR = '/opt/pipx_bin'[0m
+[0m[1;31m#     LOGNAME = 'runner'[0m
+[0m[1;31m#     GITHUB_REPOSITORY_ID = '1256052496'[0m
+[0m[1;31m#     GITHUB_ACTIONS = 'true'[0m
+[0m[1;31m#     USE_BAZEL_FALLBACK_VERSION = 'silent:'[0m
+[0m[1;31m#     ANDROID_NDK_LATEST_HOME = '/usr/local/lib/android/sdk/ndk/29.0.14206865'[0m
+[0m[1;31m#     SYSTEMD_EXEC_PID = '1798'[0m
+[0m[1;31m#     GITHUB_SHA = '2d090ae464f93388cb5aac33dc5e83151e27aa4b'[0m
+[0m[1;31m#     GITHUB_WORKFLOW_REF = 'yc945/weir-flow/.github/workflows/build.yml@refs/heads/main'[0m
+[0m[1;31m#     POWERSHELL_DISTRIBUTION_CHANNEL = 'GitHub-Actions-Linux'[0m
+[0m[1;31m#     RUNNER_ENVIRONMENT = 'github-hosted'[0m
+[0m[1;31m#     DOTNET_MULTILEVEL_LOOKUP = '0'[0m
+[0m[1;31m#     GITHUB_REF = 'refs/heads/main'[0m
+[0m[1;31m#     RUNNER_OS = 'Linux'[0m
+[0m[1;31m#     GITHUB_REF_PROTECTED = 'false'[0m
+[0m[1;31m#     HOME = '/home/runner'[0m
+[0m[1;31m#     GITHUB_API_URL = 'https://api.github.com'[0m
+[0m[1;31m#     LANG = 'C.UTF-8'[0m
+[0m[1;31m#     GOROOT_1_25_X64 = '/opt/hostedtoolcache/go/1.25.10/x64'[0m
+[0m[1;31m#     RUNNER_TRACKING_ID = 'github_e5312310-b4d4-4d69-b455-20623f5790cc'[0m
+[0m[1;31m#     RUNNER_ARCH = 'X64'[0m
+[0m[1;31m#     RUNNER_TEMP = '/home/runner/work/_temp'[0m
+[0m[1;31m#     GITHUB_STATE = '/home/runner/work/_temp/_runner_file_commands/save_state_6f20229c-7c14-478b-ba27-13fe58d460c4'[0m
+[0m[1;31m#     EDGEWEBDRIVER = '/usr/local/share/edge_driver'[0m
+[0m[1;31m#     JAVA_HOME_21_X64 = '/usr/lib/jvm/temurin-21-jdk-amd64'[0m
+[0m[1;31m#     GITHUB_ENV = '/home/runner/work/_temp/_runner_file_commands/set_env_6f20229c-7c14-478b-ba27-13fe58d460c4'[0m
+[0m[1;31m#     GITHUB_EVENT_PATH = '/home/runner/work/_temp/_github_workflow/event.json'[0m
+[0m[1;31m#     INVOCATION_ID = '906279209ea04c679bed8fcf585da8e9'[0m
+[0m[1;31m#     GITHUB_EVENT_NAME = 'push'[0m
+[0m[1;31m#     GITHUB_RUN_ID = '26762173894'[0m
+[0m[1;31m#     JAVA_HOME_17_X64 = '/usr/lib/jvm/temurin-17-jdk-amd64'[0m
+[0m[1;31m#     ANDROID_NDK_HOME = '/usr/local/lib/android/sdk/ndk/27.3.13750724'[0m
+[0m[1;31m#     GITHUB_STEP_SUMMARY = '/home/runner/work/_temp/_runner_file_commands/step_summary_6f20229c-7c14-478b-ba27-13fe58d460c4'[0m
+[0m[1;31m#     HOMEBREW_NO_AUTO_UPDATE = '1'[0m
+[0m[1;31m#     GITHUB_ACTOR = 'yc945'[0m
+[0m[1;31m#     NVM_DIR = '/home/runner/.nvm'[0m
+[0m[1;31m#     SGX_AESM_ADDR = '1'[0m
+[0m[1;31m#     GITHUB_RUN_ATTEMPT = '1'[0m
+[0m[1;31m#     ANDROID_HOME = '/usr/local/lib/android/sdk'[0m
+[0m[1;31m#     GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'[0m
+[0m[1;31m#     ACCEPT_EULA = 'Y'[0m
+[0m[1;31m#     USER = 'runner'[0m
+[0m[1;31m#     PSModulePath = '/root/.local/share/powershell/Modules:/usr/local/share/powershell/Modules:/opt/microsoft/powershell/7/Modules:/usr/share/az_14.6.0'[0m
+[0m[1;31m#     GITHUB_SERVER_URL = 'https://github.com'[0m
+[0m[1;31m#     PIPX_HOME = '/opt/pipx'[0m
+[0m[1;31m#     GECKOWEBDRIVER = '/usr/local/share/gecko_driver'[0m
+[0m[1;31m#     CHROMEWEBDRIVER = '/usr/local/share/chromedriver-linux64'[0m
+[0m[1;31m#     SHLVL = '0'[0m
+[0m[1;31m#     ANDROID_SDK_ROOT = '/usr/local/lib/android/sdk'[0m
+[0m[1;31m#     VCPKG_INSTALLATION_ROOT = '/usr/local/share/vcpkg'[0m
+[0m[1;31m#     GITHUB_ACTOR_ID = '139887443'[0m
+[0m[1;31m#     ACTIONS_ORCHESTRATION_ID = '03657306-48d4-4649-afb1-061225d31bf7.build-native.__default'[0m
+[0m[1;31m#     RUNNER_TOOL_CACHE = '/opt/hostedtoolcache'[0m
+[0m[1;31m#     ImageVersion = '20260525.156.1'[0m
+[0m[1;31m#     Python3_ROOT_DIR = '/opt/hostedtoolcache/Python/3.11.15/x64'[0m
+[0m[1;31m#     DOTNET_NOLOGO = '1'[0m
+[0m[1;31m#     GOROOT_1_23_X64 = '/opt/hostedtoolcache/go/1.23.12/x64'[0m
+[0m[1;31m#     GITHUB_WORKFLOW_SHA = '2d090ae464f93388cb5aac33dc5e83151e27aa4b'[0m
+[0m[1;31m#     GOROOT_1_24_X64 = '/opt/hostedtoolcache/go/1.24.13/x64'[0m
+[0m[1;31m#     GITHUB_REF_NAME = 'main'[0m
+[0m[1;31m#     GITHUB_JOB = 'build-native'[0m
+[0m[1;31m#     LD_LIBRARY_PATH = '/opt/hostedtoolcache/Python/3.11.15/x64/lib'[0m
+[0m[1;31m#     XDG_RUNTIME_DIR = '/run/user/1001'[0m
+[0m[1;31m#     AZURE_EXTENSION_DIR = '/opt/az/azcliextensions'[0m
+[0m[1;31m#     GITHUB_REPOSITORY = 'yc945/weir-flow'[0m
+[0m[1;31m#     Python2_ROOT_DIR = '/opt/hostedtoolcache/Python/3.11.15/x64'[0m
+[0m[1;31m#     CHROME_BIN = '/usr/bin/google-chrome'[0m
+[0m[1;31m#     GOROOT_1_22_X64 = '/opt/hostedtoolcache/go/1.22.12/x64'[0m
+[0m[1;31m#     ANDROID_NDK_ROOT = '/usr/local/lib/android/sdk/ndk/27.3.13750724'[0m
+[0m[1;31m#     GITHUB_RETENTION_DAYS = '90'[0m
+[0m[1;31m#     JOURNAL_STREAM = '8:11157'[0m
+[0m[1;31m#     RUNNER_WORKSPACE = '/home/runner/work/weir-flow'[0m
+[0m[1;31m#     LEIN_HOME = '/usr/local/lib/lein'[0m
+[0m[1;31m#     LEIN_JAR = '/usr/local/lib/lein/self-installs/leiningen-2.12.0-standalone.jar'[0m
+[0m[1;31m#     GITHUB_ACTION_REPOSITORY = ''[0m
+[0m[1;31m#     PATH = '/home/runner/.buildozer/android/platform/apache-ant-1.9.4/bin:/usr/lib/jvm/java-17-openjdk-amd64/bin:/opt/hostedtoolcache/Python/3.11.15/x64/bin:/opt/hostedtoolcache/Python/3.11.15/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'[0m
+[0m[1;31m#     GITHUB_BASE_REF = ''[0m
+[0m[1;31m#     GHCUP_INSTALL_BASE_PREFIX = '/usr/local'[0m
+[0m[1;31m#     CI = 'true'[0m
+[0m[1;31m#     SWIFT_PATH = '/usr/share/swift/usr/bin'[0m
+[0m[1;31m#     ImageOS = 'ubuntu22'[0m
+[0m[1;31m#     GITHUB_REPOSITORY_OWNER = 'yc945'[0m
+[0m[1;31m#     GITHUB_HEAD_REF = ''[0m
+[0m[1;31m#     GITHUB_ACTION_REF = ''[0m
+[0m[1;31m#     ENABLE_RUNNER_TRACING = 'true'[0m
+[0m[1;31m#     GITHUB_WORKFLOW = 'Build Android APK'[0m
+[0m[1;31m#     DEBIAN_FRONTEND = 'noninteractive'[0m
+[0m[1;31m#     GITHUB_OUTPUT = '/home/runner/work/_temp/_runner_file_commands/set_output_6f20229c-7c14-478b-ba27-13fe58d460c4'[0m
+[0m[1;31m#     AGENT_TOOLSDIRECTORY = '/opt/hostedtoolcache'[0m
+[0m[1;31m#     _ = '/opt/hostedtoolcache/Python/3.11.15/x64/bin/python'[0m
+[0m[1;31m# [0m
+[0m[1;31m# Buildozer failed to execute the last command[0m
+[0m[1;31m# The error might be hidden in the log above this error[0m
+[0m[1;31m# Please read the full log, and search for it before[0m
+[0m[1;31m# raising an issue with buildozer itself.[0m
+[0m[1;31m# In case of a bug report, please add a full log with log_level = 2[0m
