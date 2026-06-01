@@ -118,9 +118,9 @@ jobs:
         env:
           JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
-      - name: Push full build log to ci-debug branch for diagnosis
-        # Commits build.log to ci-debug branch so it can be read without auth
-        # via: https://raw.githubusercontent.com/yc945/weir-flow/ci-debug/_build_logs/native-build.log
+      - name: Push build log tail to ci-debug branch for diagnosis
+        # Pushes only the last 1500 lines so it is readable via raw URL without auth:
+        # https://raw.githubusercontent.com/yc945/weir-flow/ci-debug/_build_logs/native-build-tail.log
         if: failure()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -133,13 +133,19 @@ jobs:
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
           git checkout -b ci-debug
           mkdir -p _build_logs
-          cp "${{ github.workspace }}/build.log" _build_logs/native-build.log 2>/dev/null \
-            || echo "no build.log" > _build_logs/native-build.log
+          # Tail only - full log may be 10+ MB and unreadable via WebFetch
+          tail -n 1500 "${{ github.workspace }}/build.log" \
+            > _build_logs/native-build-tail.log 2>/dev/null \
+            || echo "no build.log" > _build_logs/native-build-tail.log
+          # Also save first 200 lines (shows Python/buildozer version info)
+          head -n 200 "${{ github.workspace }}/build.log" \
+            > _build_logs/native-build-head.log 2>/dev/null \
+            || true
           git add _build_logs/
-          git commit -m "ci: native build log [skip ci]"
+          git commit -m "ci: native build log tail [skip ci]"
           git push -f origin ci-debug
-          echo "=== Build log URL ==="
-          echo "https://raw.githubusercontent.com/${{ github.repository }}/ci-debug/_build_logs/native-build.log"
+          echo "=== Tail log URL ==="
+          echo "https://raw.githubusercontent.com/${{ github.repository }}/ci-debug/_build_logs/native-build-tail.log"
 
       - name: Upload APK (fallback)
         uses: actions/upload-artifact@v4
