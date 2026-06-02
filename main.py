@@ -132,7 +132,7 @@ def build_report(H, m, wtype, cp, segs, Q_total):
         f'  计算时间: {datetime.now():%Y-%m-%d %H:%M}',
         '',
         S,
-        f'  {"点号":^4} {"Z(m)":^8} {"h(m)":^7} {"H0(m)":^7} {"q(m²/s)":^10}',
+        f'  {"点号":^4} {"Z(m)":^8} {"h(m)":^7} {"H0(m)":^7} {"q(m2/s)":^10}',
         S,
     ]
     for c in cp:
@@ -141,7 +141,7 @@ def build_report(H, m, wtype, cp, segs, Q_total):
             f'  {c["name"]:^4} {c["Z"]:^8.3f} {c["h"]:^7.3f} '
             f'{c["H0"]:^7.3f} {c["q"]:^10.4f}{flag}')
     lines += ['', S,
-              f'  {"区间":^10} {"B(m)":^6} {"q均":^9} {"Q(m³/s)":^10}', S]
+              f'  {"区间":^10} {"B(m)":^6} {"q均":^9} {"Q(m3/s)":^10}', S]
     for sg in segs:
         lines.append(
             f'  {sg["seg"]:^10} {sg["B"]:^6.2f} '
@@ -151,11 +151,11 @@ def build_report(H, m, wtype, cp, segs, Q_total):
     lines += [
         S,
         f'  有效过水宽 = {B_eff:.2f} m',
-        f'  平均单宽流量 q̄ = {q_bar:.4f} m²/s',
+        f'  平均单宽流量 q = {q_bar:.4f} m2/s',
         '',
         '═' * 36,
-        f'  Q总 = {Q_total:.4f} m³/s',
-        f'      = {Q_total:.2f} m³/s',
+        f'  Q总 = {Q_total:.4f} m3/s',
+        f'      = {Q_total:.2f} m3/s',
         '═' * 36,
     ]
     return '\n'.join(lines)
