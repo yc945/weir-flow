@@ -168,11 +168,16 @@ KV = '''
 #:import dp kivy.metrics.dp
 #:import sp kivy.metrics.sp
 
-<Label>:   font_name: 'CJK'
-<Button>:  font_name: 'CJK'
-<TextInput>: font_name: 'CJK'
-<Spinner>: font_name: 'CJK'
-<SpinnerOption>: font_name: 'CJK'
+<Label>:
+    font_name: 'CJK'
+<Button>:
+    font_name: 'CJK'
+<TextInput>:
+    font_name: 'CJK'
+<Spinner>:
+    font_name: 'CJK'
+<SpinnerOption>:
+    font_name: 'CJK'
 
 # ── 通用模板 ──
 <SH@Label>:
