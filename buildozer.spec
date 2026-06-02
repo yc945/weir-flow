@@ -7,7 +7,7 @@ package.domain = org.water.weir
 source.dir = .
 source.include_exts = py,kv,ttf,otf,ttc,png,jpg
 
-version = 1.0
+version = 2.0
 
 requirements = python3==3.11.0,hostpython3==3.11.0,kivy==2.3.0
 

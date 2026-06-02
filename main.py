@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-溢流堰堰顶不规则断面过流能力计算  Android/Kivy 版
+溢流堰堰顶不规则断面过流能力计算  Android/Kivy 版  v2.0
 参照: SL 253-2018 | SL 265-2016 | 水力计算手册（第二版）
 
 计算方法：控制点梯形积分法
@@ -10,12 +10,14 @@
   q_i  = m × √(2g) × H0_i^1.5
   Q_i  = (q_{i-1} + q_i) / 2 × B_i   （梯形积分，B 为距前点距离）
   Q总  = Σ Q_i
+
+v2.0: 增加控制点功能需注册（注册码由开发者根据设备码生成）
 """
 
 from kivy.config import Config
 Config.set('kivy', 'keyboard_mode', 'system')
 
-import os, sys, math
+import os, sys, math, hashlib, uuid
 from datetime import datetime
 
 from kivy.app import App
@@ -34,7 +36,7 @@ from kivy.core.text import LabelBase
 from kivy.clock import Clock
 import kivy
 
-
+VERSION = '2.0'
 G = 9.81
 SQRT2G = math.sqrt(2 * G)
 
@@ -49,6 +51,26 @@ WTYPE_M = {
 }
 WTYPE_LIST = list(WTYPE_M.keys())
 
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 注册验证模块（与 keygen.py 共享同一算法）
+# ══════════════════════════════════════════════════════════════════════════════
+
+_LICENSE_SECRET = "YCShuiLi@2025#HydroCalc"
+
+
+def _generate_license(device_id: str) -> str:
+    device_id = device_id.strip().upper()
+    raw = hashlib.sha256(
+        f"{device_id}{_LICENSE_SECRET}".encode('utf-8')
+    ).hexdigest().upper()
+    return f"{raw[:4]}-{raw[4:8]}-{raw[8:12]}-{raw[12:16]}"
+
+
+def _verify_license(device_id: str, code: str) -> bool:
+    return code.strip().upper() == _generate_license(device_id)
+
+
 # ── CJK 字体 ─────────────────────────────────────────────────────────────────
 def _find_cjk_font():
     _here = os.path.dirname(os.path.abspath(__file__))
@@ -59,24 +81,17 @@ def _find_cjk_font():
         os.path.join(_here, 'fonts', 'simhei.ttf'),
         _wf + 'simhei.ttf', _wf + 'simkai.ttf',
         _wf + 'STFANGSO.TTF', _wf + 'msyh.ttc',
-        # AOSP / Pixel
         '/system/fonts/NotoSansCJK-Regular.ttc',
         '/system/fonts/NotoSansCJKsc-Regular.otf',
         '/system/fonts/DroidSansChinese.ttf',
         '/system/fonts/DroidSansFallback.ttf',
-        # MIUI (小米)
         '/system/fonts/MiSans-Regular.ttf',
         '/system/fonts/MiSans-Normal.ttf',
-        # HarmonyOS (华为)
         '/system/fonts/HarmonyOS_Sans_SC_Regular.ttf',
         '/system/fonts/HMOS_Sans_SC.ttf',
-        # ColorOS (OPPO/一加)
         '/system/fonts/OPPOSans-R.ttf',
-        # OriginOS / Funtouch (vivo)
         '/system/fonts/vivoSans-Regular.ttf',
-        # Samsung
         '/system/fonts/SamsungSans-Regular.ttf',
-        # Linux (CI / desktop)
         '/usr/share/fonts/truetype/wqy/wqy-microhei.ttc',
         '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
     ]
@@ -162,7 +177,7 @@ def build_report(H, m, wtype, cp, segs, Q_total):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# KV 布局（静态部分）
+# KV 布局
 # ══════════════════════════════════════════════════════════════════════════════
 KV = '''
 #:import dp kivy.metrics.dp
@@ -272,7 +287,7 @@ KV = '''
                 pos: self.pos
                 size: self.size
         Label:
-            text: '溢流堰过流能力计算'
+            text: '溢流堰过流能力计算  v2.0'
             font_size: sp(16)
             bold: True
             color: 1, 1, 1, 1
@@ -298,6 +313,9 @@ KV = '''
         NB:
             text: '◎ 参数说明'
             on_press: app.go('help')
+        NB:
+            text: '★ 注册'
+            on_press: app.show_register_screen()
 
 # ── 计算界面 ──────────────────────────────────────────────────────────────────
 <WeirScreen>:
@@ -515,11 +533,138 @@ KV = '''
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 控制点行组件（纯 Python 创建，方便动态增删）
+# 注册弹窗
+# ══════════════════════════════════════════════════════════════════════════════
+
+class RegisterPopup(Popup):
+    """点击"增加控制点"时未注册则弹出此窗口"""
+
+    def __init__(self, on_success=None, **kw):
+        self._on_success_cb = on_success
+        super().__init__(**kw)
+        self.title = f'软件注册  v{VERSION}'
+        self.title_font = 'CJK'
+        self.size_hint = (0.93, None)
+        self.height = dp(400)
+        self.auto_dismiss = False
+        self._build()
+
+    def _build(self):
+        app = App.get_running_app()
+        device_id = app.get_device_id()
+
+        root = BoxLayout(orientation='vertical', spacing=dp(10), padding=dp(14))
+
+        # 提示信息
+        root.add_widget(Label(
+            text='增加控制点需要注册\n请将设备码发给开发者以获取注册码',
+            font_name='CJK', font_size=sp(13),
+            color=(0.1, 0.15, 0.35, 1),
+            size_hint_y=None, height=dp(56),
+            halign='center', valign='middle',
+            text_size=(Window.width * 0.85, None),
+        ))
+
+        # 设备码
+        root.add_widget(Label(
+            text='您的设备码（长按可复制）：',
+            font_name='CJK', font_size=sp(12),
+            color=(0.3, 0.3, 0.3, 1),
+            size_hint_y=None, height=dp(26),
+            halign='left', valign='middle',
+            text_size=(Window.width * 0.85, None),
+        ))
+        dev_inp = TextInput(
+            text=device_id,
+            readonly=True,
+            font_name='CJK', font_size=sp(14),
+            size_hint_y=None, height=dp(44),
+            multiline=False,
+            background_color=(0.88, 0.94, 1, 1),
+            foreground_color=(0.05, 0.1, 0.55, 1),
+        )
+        root.add_widget(dev_inp)
+
+        # 注册码输入
+        root.add_widget(Label(
+            text='注册码（格式：XXXX-XXXX-XXXX-XXXX）：',
+            font_name='CJK', font_size=sp(12),
+            color=(0.3, 0.3, 0.3, 1),
+            size_hint_y=None, height=dp(26),
+            halign='left', valign='middle',
+            text_size=(Window.width * 0.85, None),
+        ))
+        self._code_inp = TextInput(
+            hint_text='请输入注册码',
+            font_name='CJK', font_size=sp(14),
+            size_hint_y=None, height=dp(44),
+            multiline=False,
+            background_color=(1, 1, 0.92, 1),
+            foreground_color=(0, 0, 0, 1),
+        )
+        root.add_widget(self._code_inp)
+
+        # 状态提示
+        self._status = Label(
+            text='',
+            font_name='CJK', font_size=sp(12),
+            color=(0.75, 0.1, 0.1, 1),
+            size_hint_y=None, height=dp(28),
+            halign='center', valign='middle',
+            text_size=(Window.width * 0.85, None),
+        )
+        root.add_widget(self._status)
+
+        # 按钮行
+        btn_row = BoxLayout(size_hint_y=None, height=dp(52), spacing=dp(8))
+        ok_btn = Button(
+            text='验 证 注 册 码',
+            font_name='CJK', font_size=sp(14), bold=True,
+            background_color=(0.12, 0.55, 0.30, 1),
+            background_normal='', color=(1, 1, 1, 1),
+        )
+        ok_btn.bind(on_press=lambda *_: self._verify(device_id))
+        cancel_btn = Button(
+            text='取 消',
+            font_name='CJK', font_size=sp(14),
+            background_color=(0.48, 0.48, 0.48, 1),
+            background_normal='', color=(1, 1, 1, 1),
+        )
+        cancel_btn.bind(on_press=lambda *_: self.dismiss())
+        btn_row.add_widget(ok_btn)
+        btn_row.add_widget(cancel_btn)
+        root.add_widget(btn_row)
+
+        self.content = root
+        self._device_id = device_id
+
+    def _verify(self, device_id):
+        code = self._code_inp.text.strip()
+        if not code:
+            self._status.text = '请输入注册码'
+            self._status.color = (0.75, 0.1, 0.1, 1)
+            return
+        app = App.get_running_app()
+        if _verify_license(device_id, code):
+            app.save_license(device_id, code)
+            self._status.text = '注册成功！'
+            self._status.color = (0.1, 0.5, 0.15, 1)
+            Clock.schedule_once(self._finish, 0.6)
+        else:
+            self._status.text = '注册码无效，请检查后重试'
+            self._status.color = (0.75, 0.1, 0.1, 1)
+
+    def _finish(self, *_):
+        self.dismiss()
+        if self._on_success_cb:
+            self._on_success_cb()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 控制点行组件
 # ══════════════════════════════════════════════════════════════════════════════
 
 def make_point_row(screen, idx, name='', Z='', B=''):
-    """返回一个控制点输入行 BoxLayout"""
     row = BoxLayout(
         orientation='horizontal',
         size_hint_y=None,
@@ -529,53 +674,34 @@ def make_point_row(screen, idx, name='', Z='', B=''):
     )
     bg = (0.95, 0.97, 1, 1) if idx % 2 == 0 else (0.88, 0.93, 0.97, 1)
 
-    # 编号标签
     name_lbl = Label(
         text=name or str(idx),
-        font_name='CJK',
-        font_size=sp(13),
+        font_name='CJK', font_size=sp(13),
         size_hint_x=0.16,
         color=(0.15, 0.15, 0.3, 1),
     )
-
-    # Z 输入
     Z_inp = TextInput(
-        text=Z,
-        hint_text='高程',
-        font_name='CJK',
-        font_size=sp(14),
-        size_hint_x=0.38,
-        multiline=False,
-        input_filter='float',
-        background_color=bg,
-        foreground_color=(0, 0, 0, 1),
+        text=Z, hint_text='高程',
+        font_name='CJK', font_size=sp(14),
+        size_hint_x=0.38, multiline=False, input_filter='float',
+        background_color=bg, foreground_color=(0, 0, 0, 1),
         padding=(dp(4), dp(8)),
     )
-
-    # B 输入（第1点灰显不可编辑）
     B_inp = TextInput(
         text='0' if (idx == 1 and not B) else B,
         hint_text='间距',
-        font_name='CJK',
-        font_size=sp(14),
-        size_hint_x=0.34,
-        multiline=False,
-        input_filter='float',
+        font_name='CJK', font_size=sp(14),
+        size_hint_x=0.34, multiline=False, input_filter='float',
         readonly=(idx == 1),
         background_color=(0.88, 0.88, 0.88, 1) if idx == 1 else bg,
         foreground_color=(0.4, 0.4, 0.4, 1) if idx == 1 else (0, 0, 0, 1),
         padding=(dp(4), dp(8)),
     )
-
-    # 删除按钮
     del_btn = Button(
-        text='✕',
-        font_name='CJK',
-        font_size=sp(13),
+        text='✕', font_name='CJK', font_size=sp(13),
         size_hint_x=0.12,
         background_color=(0.75, 0.2, 0.2, 1),
-        background_normal='',
-        color=(1, 1, 1, 1),
+        background_normal='', color=(1, 1, 1, 1),
     )
     del_btn.bind(on_press=lambda btn, r=row: screen.del_row(r))
 
@@ -584,11 +710,9 @@ def make_point_row(screen, idx, name='', Z='', B=''):
     row.add_widget(B_inp)
     row.add_widget(del_btn)
 
-    # 附加数据引用
     row._name_lbl = name_lbl
     row._Z_inp    = Z_inp
     row._B_inp    = B_inp
-
     return row
 
 
@@ -603,11 +727,10 @@ class RootBox(BoxLayout):
 class WeirScreen(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
-        self._rows = []   # list of row BoxLayout
+        self._rows = []
         Clock.schedule_once(self._init_rows, 0.1)
 
     def _init_rows(self, *_):
-        # 载入示例数据（来自 Excel 参考文件）
         defaults = [
             ('1', '98.00', '0'),
             ('2', '95.85', '1.80'),
@@ -629,7 +752,12 @@ class WeirScreen(Screen):
         self.ids.rows_box.add_widget(row)
 
     def add_point(self):
-        self._add_row_data()
+        """增加控制点——未注册时弹出注册窗口"""
+        app = App.get_running_app()
+        if app.is_registered():
+            self._add_row_data()
+        else:
+            RegisterPopup(on_success=self._add_row_data).open()
 
     def del_last(self):
         if len(self._rows) > 1:
@@ -706,7 +834,6 @@ class HelpScreen(Screen):
             '  驼峰堰             0.38~0.42   0.400',
         ]
         self.ids.lbl_mref.text = '\n'.join(mref_lines)
-
         self.ids.lbl_help.text = (
             '【计算原理 — 控制点梯形积分法】\n\n'
             '  将堰顶横断面由 N 个控制点描述，\n'
@@ -733,7 +860,8 @@ class HelpScreen(Screen):
             '  SL 253-2018  溢洪道设计规范\n'
             '  SL 265-2016  水闸设计规范\n'
             '  水力计算手册（第二版）\n'
-            '  武汉水利电力学院'
+            '  武汉水利电力学院\n\n'
+            f'【版本】v{VERSION}  宜昌水利 超哥'
         )
 
 
@@ -742,6 +870,92 @@ class HelpScreen(Screen):
 # ══════════════════════════════════════════════════════════════════════════════
 
 class WeirCalcApp(App):
+    _device_id  = None
+    _registered = False
+
+    # ── 设备码 ────────────────────────────────────────────────────────────────
+    def get_device_id(self) -> str:
+        if self._device_id:
+            return self._device_id
+
+        # 优先读取 Android ID
+        try:
+            from jnius import autoclass
+            PythonActivity = autoclass('org.kivy.android.PythonActivity')
+            Settings = autoclass('android.provider.Settings$Secure')
+            ctx = PythonActivity.mActivity
+            aid = Settings.getString(ctx.getContentResolver(), 'android_id')
+            if aid:
+                self._device_id = aid.strip().upper()[:16]
+                return self._device_id
+        except Exception:
+            pass
+
+        # 降级：从文件读取或生成持久 UUID
+        id_file = os.path.join(self.user_data_dir, '.dev_id')
+        try:
+            if os.path.exists(id_file):
+                with open(id_file) as f:
+                    self._device_id = f.read().strip()
+                    return self._device_id
+        except Exception:
+            pass
+
+        new_id = str(uuid.uuid4()).replace('-', '')[:16].upper()
+        try:
+            os.makedirs(self.user_data_dir, exist_ok=True)
+            with open(id_file, 'w') as f:
+                f.write(new_id)
+        except Exception:
+            pass
+        self._device_id = new_id
+        return self._device_id
+
+    # ── 注册状态 ──────────────────────────────────────────────────────────────
+    def is_registered(self) -> bool:
+        if self._registered:
+            return True
+        reg_file = os.path.join(self.user_data_dir, '.lic')
+        try:
+            with open(reg_file) as f:
+                lines = f.read().strip().split('\n')
+            if len(lines) >= 2 and _verify_license(lines[0], lines[1]):
+                self._registered = True
+                return True
+        except Exception:
+            pass
+        return False
+
+    def save_license(self, device_id: str, code: str):
+        reg_file = os.path.join(self.user_data_dir, '.lic')
+        try:
+            os.makedirs(self.user_data_dir, exist_ok=True)
+            with open(reg_file, 'w') as f:
+                f.write(f"{device_id.strip().upper()}\n{code.strip().upper()}")
+            self._registered = True
+        except Exception:
+            pass
+
+    # ── 注册入口（底部导航栏触发）────────────────────────────────────────────
+    def show_register_screen(self):
+        if self.is_registered():
+            from kivy.uix.popup import Popup
+            p = Popup(
+                title='注册状态',
+                title_font='CJK',
+                content=Label(
+                    text=f'已注册\n设备码: {self.get_device_id()}',
+                    font_name='CJK', font_size=sp(14),
+                    halign='center',
+                ),
+                size_hint=(0.85, None),
+                height=dp(220),
+            )
+            p.open()
+        else:
+            RegisterPopup().open()
+
+    # ── 构建 ──────────────────────────────────────────────────────────────────
     def build(self):
         Window.clearcolor = (0.96, 0.96, 0.97, 1)
         Window.softinput_mode = 'below_target'
